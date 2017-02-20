@@ -8,7 +8,7 @@ for i in range(1,6):
     print("writing to file ",outputName, "with i of ", str(i))
     for j in range(1,pow(10,i)+1):
         #print(str(pow(10,i))+1))
-        num = randint(-2222222222222,2222222222222)
+        num = randint(-22222,22222)
         file.write(str(num)+'\n')
 
 
