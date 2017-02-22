@@ -1,0 +1,42 @@
+File of size 10^1 has
+sum: 290846.0
+ min: -199832.0
+ max: 206591.0
+time_taken: 1.251
+
+File of size 10^2 has
+sum: 812260.0
+ min: -217336.0
+ max: 219795.0
+time_taken: 0.25
+
+File of size 10^3 has
+sum: -150077.0
+ min: -221498.0
+ max: 222064.0
+time_taken: 0.242
+
+File of size 10^4 has
+sum: 405150.0
+ min: -222173.0
+ max: 222197.0
+time_taken: 0.137
+
+File of size 10^5 has
+sum: 15498116.0
+ min: -222215.0
+ max: 222222.0
+time_taken: 0.246
+
+File of size 10^6 has
+sum: -219250560.0
+ min: -222222.0
+ max: 222222.0
+time_taken: 0.908
+
+File of size 10^7 has
+sum: 332678005.0
+ min: -222222.0
+ max: 222222.0
+time_taken: 7.377
+

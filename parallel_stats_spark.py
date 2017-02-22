@@ -5,8 +5,8 @@ from time import time
 
 if __name__=="__main__":
 
-    #this usage is for running one file at a time
-    # if len(sys.argv) != 2:
+    #this usage is for running one file at a time 
+    #if len(sys.argv) != 2:
     #    print "Usage: script.py <input file>\n Options are: 1,2,3,4,5,6"
     #    exit(-1)
 
@@ -23,9 +23,9 @@ if __name__=="__main__":
     #input_file_name = "input_file_10^{0}.txt".format(file_size)
 
     #run reduce functions on every file
-    for file_size in range(1,6):
+    for file_size in range(1,8):
 
-        input_file_name = "input_file_10^{0}.txt".format(file_size)
+        input_file_name = "./input/input_file_10^{0}.txt".format(file_size)
         data = np.loadtxt(input_file_name)
         
         distData = sc.parallelize(data)
