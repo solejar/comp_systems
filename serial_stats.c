@@ -1,9 +1,19 @@
 #include <stdio.h>
+//for i/o
+
 #include <stdlib.h>
 #include <string.h>
+//for strcat, strcpy
+
 #include <limits.h>
+//int_max, int_min
+
 #include <math.h>
+//pow function, for file_size
+
 #include <time.h>
+//for timing
+
 //need to link to math '-lm'
 //gcc -std=c99 -o objectname filename.c -lm
 
