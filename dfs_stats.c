@@ -7,31 +7,6 @@
 //need to link to math '-lm'
 //gcc -std=c99 -o objectname filename.c -lm
 
-//function that calcs sum, max, min, of range of nums in array
-int* stats(int start, int end, int * array){
-    int sum = 0;
-    int max = INT_MIN;
-    int min = INT_MAX;
-
-    for(int i = start;i<=end; i++){
-            int curr = array[i];
-            sum += curr;
-            if (curr<min){
-                min = curr;
-            }
-            if  (curr>max){
-                max = curr;
-            }
-        }
-
-    static int results[3];
-    results[0] = sum;
-    results[1] = min;
-    results[2] = max;
-
-    return results;
-}
-
 int main(int argc, char *argv[]){
 
     //these are parts of filename
@@ -87,18 +62,24 @@ int main(int argc, char *argv[]){
         }
 
         //now vals contains vals. everything after this can be split!
+        int sum = 0;
+        int min = INT_MAX;
+        int max = INT_MIN;
 
         //performing statistical operations on data
 
         clock_t begin = clock();
 
-        //call function to get stats
-        int * stat_array = stats(0,data_length-1,vals);
-
-        int sum = stat_array[0];
-        int min = stat_array[1];
-        int max = stat_array[2];
-        //printf("results of function call: %d sum, %d sum, %d sum", stat_array[0],stat_array[1],stat_array[2]);
+        for(int i = 0;i<data_length; i++){
+            int curr = vals[i];
+            sum += curr;
+            if (curr<min){
+                min = curr;
+            }
+            if  (curr>max){
+                max = curr;
+            }
+        }
 
         clock_t end = clock();
         double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;

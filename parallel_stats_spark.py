@@ -34,6 +34,7 @@ if __name__=="__main__":
         start = time()
 
         sum_data = distData.reduce(lambda a, b: a+b)
+        #sum_data = distData.mapValues(lambda (a, b): a+b).collect()
         min_data = distData.reduce(lambda smallest, current: smallest if (smallest<current) else current)
         max_data = distData.reduce(lambda largest, current: largest if (largest>current) else current)
 
