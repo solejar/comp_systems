@@ -48,13 +48,50 @@ int* stats(int start, int end, int * array){
     return results;
 }
 
-int main(int argc, char *argv[]){
+int * readFile(int file, int data_size){
 
-    //these are parts of filename
     const char * file_pref = "./input/input_file_10^";
     const char * file_suff = ".txt";
 
-    const char * output_name = "./output/output_file_serial.txt";
+    char file_name[48];
+
+    char temp[2];
+    sprintf(temp,"%d",file);
+
+    //concat'ing file name
+    strcpy(file_name, file_pref);
+    strcat(file_name, temp);
+    strcat(file_name,file_suff);   
+
+    //dynamically allocating array
+    static int* output_vals;
+    output_vals = malloc(data_size*sizeof(int));
+
+    //this is opening file
+    FILE *fp = NULL;
+    fp = fopen(file_name,"r");
+
+    //checking fopen() success
+    if (fp == NULL){
+        printf("\nWarning, fopen() failed!\n");
+        int * error;
+        *error = -1;
+        return error;
+    }   
+
+    //reading in data 
+    for(int i =0;i<data_size;i++){
+        fscanf(fp,"%d", &output_vals[i]);
+    }
+
+    //printf("Success! read in okay\n");
+
+    return output_vals;
+}
+
+int main(int argc, char *argv[]){
+
+    const char * output_name = "./output/output_file_dfs.txt";
 
     FILE *output_file = NULL;
     output_file = fopen(output_name,"w");
@@ -62,47 +99,11 @@ int main(int argc, char *argv[]){
     //for(int file_size = 1; file_size<7;file_size++){
     int file_size = 1; //this is for testing the simple code
         
-        //this is construction of filename
-        //printf("Got this far with i of %d\n",file_size);
-        char file_name[48];
 
-        char temp[2];
-        sprintf(temp,"%d",file_size);
-
-        strcpy(file_name, file_pref);
-        strcat(file_name, temp);
-        strcat(file_name,file_suff);
-
-        double SIZE = 4;
-        //number of elems
-        
         double ELEMS = pow(10,(double)file_size);
         int data_length = (int) ELEMS;
 
-        int totalBytes = (int) SIZE*ELEMS;
-        //printf("Total Bytes SHOULD be %i\n", totalBytes);
-
-        int vals[data_length];
-
-        //this is opening file
-
-        FILE *fp = NULL;
-        fp = fopen(file_name,"r");
-
-        //checking fopen() success
-        if (fp == NULL){
-            printf("\nWarning, fopen() failed!\n");
-            return 1;
-        }   
-
-        
-        //printf("doing %d loops on %s\n", data_length,file_name);
-
-        //reading in data 
-        for(int i =0;i<data_length;i++){
-            fscanf(fp,"%d", &vals[i]);
-        }
-
+        int *vals = readFile(file_size,data_length);
         //now vals contains vals. everything after this can be split!
 
         //performing statistical operations on data
@@ -128,8 +129,8 @@ int main(int argc, char *argv[]){
         int sum = stat_array[0];
         int min = stat_array[1];
         int max = stat_array[2];
-        //printf("results of function call: %d sum, %d sum, %d sum", stat_array[0],stat_array[1],stat_array[2]);
-
+        printf("results of function call: %d sum, %d min, %d max", stat_array[0],stat_array[1],stat_array[2]);
+        
         clock_t end = clock();
         double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;
 
@@ -146,5 +147,7 @@ int main(int argc, char *argv[]){
         */
 
     //}
+
+    free (vals);
     return 0;
 }
