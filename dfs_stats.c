@@ -25,27 +25,53 @@
 
 //function that calcs sum, max, min, of range of nums in array
 int* stats(int start, int end, int * array){
-    int sum = 0;
-    int max = INT_MIN;
-    int min = INT_MAX;
+    int temp_sum = 0;
+    int temp_max = INT_MIN;
+    int temp_min = INT_MAX;
 
     for(int i = start;i<=end; i++){
             int curr = array[i];
-            sum += curr;
-            if (curr<min){
-                min = curr;
+            temp_sum += curr;
+            if (curr<temp_min){
+                temp_min = curr;
             }
-            if  (curr>max){
-                max = curr;
+            if  (curr>temp_max){
+                temp_max = curr;
             }
         }
 
     static int results[3];
-    results[0] = sum;
-    results[1] = min;
-    results[2] = max;
+    results[0] = temp_sum;
+    results[1] = temp_min;
+    results[2] = temp_max;
 
     return results;
+}
+
+int * collate(int * array1, int *array2){
+    int temp_sum = array1[0] + array2[0];
+    int temp_min;
+    int temp_max;
+
+    static int output[3]; 
+
+    if(array1[1]<array2[1]){
+        temp_min = array1[1];
+    }else{
+        temp_min = array2[1];
+    }
+
+    if(array1[2]>array2[2]){
+        temp_max = array1[2];
+    }else{
+        temp_max = array2[2];
+    }
+
+    output[0] = temp_sum;
+    output[1] = temp_min;
+    output[2] = temp_max;
+
+    return output;
 }
 
 int * readFile(int file, int data_size){
@@ -85,8 +111,60 @@ int * readFile(int file, int data_size){
     }
 
     //printf("Success! read in okay\n");
+    fclose(fp);
 
     return output_vals;
+}
+
+int * spawn_children(int kids_left){
+    if (kids_left>0){
+
+        int parent_pipe[2];
+        int child_pipe[2];
+
+        if(pipe(parent_pipe)||pipe(child_pipe)){
+            perror("pipe");
+            exit(1);
+        }
+
+        pid_t child_pid;
+
+        child_pid = fork();
+
+        if (child_pid == -1){
+            perror("fork()");
+            exit(1);
+        }
+
+        if(child_pid != 0){
+            int istream_parent,ostream_parent;
+            istream_parent = child_pipe[1];
+            ostream_parent = parent_pipe[0];
+
+            close(child_pipe[0]);
+            close(parent_pipe[1]);
+
+            printf("this is parent. id is %d\n",(int) getpid());
+            printf("child id = %d\n", (int) child_pid);
+        }
+        else{
+            int istream_child,ostream_child;
+            istream_child = child_pipe[0];
+            ostream_child = parent_pipe[1];
+
+            close(child_pipe[1]);
+            close(parent_pipe[0]);
+            printf("this is child. id is %d\n", (int) getpid());
+            //read in data, then stat it. then write results to parent.
+
+            spawn_children(kids_left-1);
+        }
+    }else{
+        //this is the leaf. 
+        //read in data
+        //write answer.
+        //int my_answer = stat()
+    }
 }
 
 int main(int argc, char *argv[]){
@@ -108,6 +186,8 @@ int main(int argc, char *argv[]){
 
         //performing statistical operations on data
 
+        spawn_children(2);
+        /*
         //let's learn about pids!
         pid_t child_pid;
 
@@ -118,7 +198,7 @@ int main(int argc, char *argv[]){
         }
         else{
             printf("this is child, cause return is 0. id is %d\n", (int) getpid());
-        }
+        }*/
 
         /*
         clock_t begin = clock();
@@ -137,7 +217,7 @@ int main(int argc, char *argv[]){
 
         //printf("fscanf() successful!\n");
 
-        fclose(fp);
+        
         //printf("\n File stream closed through fclose()!\n");
 
         char output[128];

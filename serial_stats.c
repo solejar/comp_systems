@@ -19,25 +19,25 @@
 
 //function that calcs sum, max, min, of range of nums in array
 int* stats(int start, int end, int * array){
-    int sum = 0;
-    int max = INT_MIN;
-    int min = INT_MAX;
+    int temp_sum = 0;
+    int temp_max = INT_MIN;
+    int temp_min = INT_MAX;
 
     for(int i = start;i<=end; i++){
             int curr = array[i];
-            sum += curr;
-            if (curr<min){
-                min = curr;
+            temp_sum += curr;
+            if (curr<temp_min){
+                temp_min = curr;
             }
-            if  (curr>max){
-                max = curr;
+            if  (curr>temp_max){
+                temp_max = curr;
             }
         }
 
     static int results[3];
-    results[0] = sum;
-    results[1] = min;
-    results[2] = max;
+    results[0] = temp_sum;
+    results[1] = temp_min;
+    results[2] = temp_max;
 
     return results;
 }
@@ -80,6 +80,8 @@ int * readFile(int file, int data_size){
 
     //printf("Success! read in okay\n");
 
+    fclose(fp);
+
     return output_vals;
 }
 
@@ -118,7 +120,7 @@ int main(int argc, char *argv[]){
 
         //printf("fscanf() successful!\n");
 
-        fclose(fp);
+        
         //printf("\n File stream closed through fclose()!\n");
 
         char output[128];
