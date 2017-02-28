@@ -1,0 +1,36 @@
+File of size 10^1 has:
+Sum: 290846,
+ min: -199832,
+ max: 206591,
+ time: 0.000001sec
+
+File of size 10^2 has:
+Sum: 812260,
+ min: -217336,
+ max: 219795,
+ time: 0.000003sec
+
+File of size 10^3 has:
+Sum: -150077,
+ min: -221498,
+ max: 222064,
+ time: 0.000014sec
+
+File of size 10^4 has:
+Sum: 405150,
+ min: -222173,
+ max: 222197,
+ time: 0.000113sec
+
+File of size 10^5 has:
+Sum: 15498116,
+ min: -222215,
+ max: 222222,
+ time: 0.000689sec
+
+File of size 10^6 has:
+Sum: -219250560,
+ min: -222222,
+ max: 222222,
+ time: 0.005158sec
+
