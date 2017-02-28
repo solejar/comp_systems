@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-//for strcat, strcpy
+//for strcat, strcpy and for memcpy
 
 #include <limits.h>
 //int_max, int_min
@@ -112,31 +112,31 @@ int * readFile(int file, int data_size){
 
     //printf("Success! read in okay\n");
     fclose(fp);
-
     return output_vals;
 }
 
-int * spawn_children(int kids_left, int max_size, /*int orig,*/ int *vals){
-    printf("spawn func called with %dkids_left, %dmax_size\n",kids_left,max_size);
+int * spawn_children(int kids_left, int max_size, int *vals){
+    //printf("spawn func called with %dkids_left, %dmax_size\n",kids_left,max_size);
     
     int child_pipe[2];
 
-    printf("my kids_left is %d, if it's <=0, I expect to hit edge!\n",kids_left);
-    if(/*pipe(parent_pipe)||*/pipe(child_pipe)){
+    //printf("my kids_left is %d, if it's <=0, I expect to hit edge!\n",kids_left);
+
+    if(pipe(child_pipe)){
         perror("pipe");
         exit(1);
     }
 
 
-    if (kids_left>0/*&&orig==1*/){
+    if (kids_left>0){
 
         //int parent_pipe[2];
-        int child_pipe[2];
-
-        if(/*pipe(parent_pipe)||*/pipe(child_pipe)){
+        //int child_pipe[2];
+        /*
+        if(pipe(child_pipe)){
             perror("pipe");
             exit(1);
-        }
+        }*/
 
         pid_t child_pid;
 
@@ -148,7 +148,7 @@ int * spawn_children(int kids_left, int max_size, /*int orig,*/ int *vals){
         if(child_pid!=0){
             printf("this is parent. id is %d\n",(int) getpid());
             printf("child id = %d\n", (int) child_pid);
-            int istream_parent;//, ostream_parent;
+            int istream_parent;
             istream_parent = child_pipe[0];
             
 
@@ -165,7 +165,7 @@ int * spawn_children(int kids_left, int max_size, /*int orig,*/ int *vals){
             int * parent_stats = stats(0, this_elems,vals);
 
             
-            int all_to_send[3];
+            //int all_to_send[3];
             
 
             int next_elems = (int) floor(elems_left/(kids_left));
@@ -191,15 +191,16 @@ int * spawn_children(int kids_left, int max_size, /*int orig,*/ int *vals){
 
             //floor might not be necessary
             int this_elems = (int) floor(max_size/(kids_left+1));
+
+            //size of the subarray
             int elems_left = max_size-this_elems;
             int next_elems = (int) floor(elems_left/(kids_left));
 
 
+            //copies subarray to be passed to next function call
             int *next_vals = malloc(elems_left*sizeof(int));
             memcpy(next_vals, &vals[this_elems],elems_left*sizeof(int));
-            /*if(kids_left==1){
-                printf("this is what gets passsed: %d, %d, %d\n",next_vals[0],next_vals[1],next_vals[2]);
-            }*/
+            
             int *child_stats = spawn_children(kids_left-1,elems_left,next_vals);
             
             write(ostream_child,child_stats,3*sizeof(int));
