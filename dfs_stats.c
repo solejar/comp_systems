@@ -117,14 +117,16 @@ int * readFile(int file, int data_size){
 }
 
 int * spawn_children(int kids_left, int max_size, /*int orig,*/ int *vals){
-    printf("spawn func called with %dkids_left, %dmax_size",kids_left,max_size);
+    printf("spawn func called with %dkids_left, %dmax_size\n",kids_left,max_size);
     
     int child_pipe[2];
 
+    printf("my kids_left is %d, if it's <=0, I expect to hit edge!\n",kids_left);
     if(/*pipe(parent_pipe)||*/pipe(child_pipe)){
         perror("pipe");
         exit(1);
     }
+
 
     if (kids_left>0/*&&orig==1*/){
 
@@ -147,10 +149,10 @@ int * spawn_children(int kids_left, int max_size, /*int orig,*/ int *vals){
             printf("this is parent. id is %d\n",(int) getpid());
             printf("child id = %d\n", (int) child_pid);
             int istream_parent;//, ostream_parent;
-            istream_parent = child_pipe[1];
-            //ostream_parent = parent_pipe[0];
+            istream_parent = child_pipe[0];
+            
 
-            close(child_pipe[0]);
+            close(child_pipe[1]);
             //close(parent_pipe[1]);
 
             //figure out how many elems this one will handle
@@ -162,165 +164,69 @@ int * spawn_children(int kids_left, int max_size, /*int orig,*/ int *vals){
             //get results for parent
             int * parent_stats = stats(0, this_elems,vals);
 
-            //gonna combine all stuff
-            //int * all_to_send = malloc((elems_left+3)*sizeof(int));
+            
             int all_to_send[3];
-            //memcpy(all_to_send,parent_stats,3*sizeof(int));
-            //memcpy(&all_to_send[3],&vals[max_size-(elems_left+1)],elems_left*sizeof(int));
-
-
-            //write(ostream_parent,all_to_send,(this_elems+3)*sizeof(int));
-            //write(ostream_parent,all_to_send,(3)*sizeof(int));
+            
 
             int next_elems = (int) floor(elems_left/(kids_left));
-            /*int *child_stats;
-            child_stats = malloc(next_elems*sizeof(int));*/
+            
             int child_stats[3];
 
-            //read(istream_parent,child_stats,next_elems*sizeof(int));
             read(istream_parent,child_stats,3*sizeof(int));
 
             int * results = collate(parent_stats, child_stats);
 
-            //free(all_to_send);
-            //free(child_stats);
-
+            printf("I'm parent %d, and I'm returning sum: %d, min: %d, max: %d,",(int)getpid(),results[0],results[1],results[2]);
             return results;
 
         }else{
+            
             printf("this is child. id is %d\n", (int) getpid());
-            int /*istream_child;*/ostream_child;
-            ostream_child = child_pipe[0];
-            //ostream_child = parent_pipe[1];
+            int ostream_child;
+            ostream_child = child_pipe[1];
+            
 
-            close(child_pipe[1]);
-            //close(parent_pipe[0]);
-            //printf("this is child. id is %d\n", (int) getpid());
+            close(child_pipe[0]);
+            
 
             //floor might not be necessary
             int this_elems = (int) floor(max_size/(kids_left+1));
             int elems_left = max_size-this_elems;
             int next_elems = (int) floor(elems_left/(kids_left));
 
-            /*int parent_data*;
-            parent_data = malloc(this_elems+3);*/
-
-
-            //read(istream_child,parent_data,(this_elems+3)*sizeof(int));
-
-            //int my_data = malloc(this_elems);
-
-            /*int parent_stats[3];
-
-            for(int i = 0;i<3;i++){
-                parent_stats[i] = parent_data[i];
-            }
-            
-            
-            memcpy(my_data, &parent_data[3],this_elems*sizeof(int));*/
-            //int *parent_stats = stats(this_elems,this_elems+next_elems,vals);
 
             int *next_vals = malloc(elems_left*sizeof(int));
-            memcpy(next_vals, &vals[this_elems],elems_left);
+            memcpy(next_vals, &vals[this_elems],elems_left*sizeof(int));
+            /*if(kids_left==1){
+                printf("this is what gets passsed: %d, %d, %d\n",next_vals[0],next_vals[1],next_vals[2]);
+            }*/
             int *child_stats = spawn_children(kids_left-1,elems_left,next_vals);
-            //read in data, then stat it. then write results to parent.
-
-            //int *results = collate(child_stats,parent_stats);
             
-            //write(ostream_child,results,3*sizeof(int));
             write(ostream_child,child_stats,3*sizeof(int));
 
-            /*free(parent_data);
-            free(my_data);*/
+            
             free(next_vals);
 
             exit(1);
 
         }
     }else{
-        //int results[3];
-        int this_elems = max_size/(kids_left+1);
-        int *results = stats(0,this_elems,vals);
-
-        int /*istream_child;*/ostream_child;
-        ostream_child = child_pipe[0];
-        //ostream_child = parent_pipe[1];
-        close(child_pipe[1]);
-
         
-        /*results[0] = 0;
-        results[1] = INT_MAX;
-        results[2] = INT_MIN;*/
+        int this_elems = max_size;
+        printf("vals are from %d, %d, to %d,\n",vals[0],vals[1],vals[2]);
+        int *results = stats(0,this_elems,vals);
+       
 
-        write(ostream_child,results,3*sizeof(int));
+        int ostream_child;
+        ostream_child = child_pipe[1];
+        
+        close(child_pipe[0]);
 
-        exit(1);
-        //return results;
+        printf("I'm mr edge case %d, and I'm returning sum: %d, min: %d, max: %d,\n",(int)getpid(),results[0],results[1],results[2]);
+        //exit(1);
+        return results;
     }
-    /*else if (kids_left>0){
-
-        int parent_pipe[2];
-        int child_pipe[2];
-
-        if(pipe(parent_pipe)||pipe(child_pipe)){
-            perror("pipe");
-            exit(1);
-        }
-
-        pid_t child_pid;
-
-        child_pid = fork();
-
-        if (child_pid == -1){
-            perror("fork()");
-            exit(1);
-        }
-
-        if(child_pid != 0){
-            int istream_parent,ostream_parent;
-            istream_parent = child_pipe[1];
-            ostream_parent = parent_pipe[0];
-
-            close(child_pipe[0]);
-            close(parent_pipe[1]);
-
-            int * parent_stats = stat(/*put in range);
-            write(ostream_parent,parent_stats,);
-
-            int child_stats[max_size];
-            read(istream_parent,child_stats,max_size*sizeof(int));
-
-            int * collated_stats = collate(parent_stats,child_stats);
-
-            printf("this is parent. id is %d\n",(int) getpid());
-            printf("child id = %d\n", (int) child_pid);
-        }
-        else{
-            int istream_child,ostream_child;
-            istream_child = child_pipe[0];
-            ostream_child = parent_pipe[1];
-
-            close(child_pipe[1]);
-            close(parent_pipe[0]);
-            printf("this is child. id is %d\n", (int) getpid());
-            //read in data, then stat it. then write results to parent.
-
-            spawn_children(kids_left-1);
-        }
-    }else{
-        //this is the leaf. 
-        //read in data
-        int parent_stats[max_size];
-        read(istream_child,child_stats,max_size*sizeof(int));
-
-        int 
-
-        int * child_stats = stats('range you need');
-
-        write(ostream_child,)
-        //write answer.
-        //int my_answer = stat()
-    }*/
+    
 }
 
 int main(int argc, char *argv[]){
