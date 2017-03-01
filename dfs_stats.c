@@ -176,7 +176,7 @@ int * spawn_children(int kids_left, int max_size, int *vals){
 
             int * results = collate(parent_stats, child_stats);
 
-            printf("I'm parent %d, and I'm returning sum: %d, min: %d, max: %d,",(int)getpid(),results[0],results[1],results[2]);
+            //printf("I'm parent %d, and I'm returning sum: %d, min: %d, max: %d,",(int)getpid(),results[0],results[1],results[2]);
             return results;
 
         }else{
@@ -223,7 +223,7 @@ int * spawn_children(int kids_left, int max_size, int *vals){
         
         close(child_pipe[0]);
 
-        printf("I'm mr edge case %d, and I'm returning sum: %d, min: %d, max: %d,\n",(int)getpid(),results[0],results[1],results[2]);
+        //printf("I'm mr edge case %d, and I'm returning sum: %d, min: %d, max: %d,\n",(int)getpid(),results[0],results[1],results[2]);
         //exit(1);
         return results;
     }
