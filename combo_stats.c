@@ -232,15 +232,22 @@ int * recursive_spawn(int kids_left, int max_kids, int max_size, int *vals){
             //how many left to pass 
             int elems_left = max_size - this_elems;
 
+            int *new_elems = malloc(this_elems*sizeof(int));
             //get results for parent
-            int * parent_stats = stats(0, this_elems,vals);
-
+            for(int i= 0;i<this_elems;i++){
+                new_elems[i] = vals[i];
+            }
+            int * parent_stats = iterative_spawn(max_kids,max_size,new_elems);//stats(0, this_elems,vals);
+            free(new_elems);
             
             //int all_to_send[3];   
             int next_elems = (int) floor(elems_left/(kids_left));            
             int child_stats[3];
 
-            int *second_child_stats = iterative_spawn(max_kids,max_size,vals);
+            //int *second_child_stats = iterative_spawn(max_kids,max_size,vals);
+
+            //int *temp = collate(child_stats,second_child_stats);
+            
 
             read(istream_parent,child_stats,3*sizeof(int));
             int * results = collate(parent_stats, child_stats);
@@ -311,7 +318,7 @@ int main(int argc, char *argv[]){
         //performing statistical operations on data
         int kids = 3;
 
-        int *master_stats = iterative_spawn(kids,data_length,vals);
+        int *master_stats = recursive_spawn(kids,kids,data_length,vals);
 
         printf("results of function call: %d sum, %d min, %d max\n", master_stats[0],master_stats[1],master_stats[2]);
         //printf("this is definitely where the error is");
