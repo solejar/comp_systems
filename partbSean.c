@@ -228,13 +228,17 @@ int * spawn_children(int kids_left, int max_size, int *vals, FILE* ofp){
 
 int main(int argc, char *argv[]){
 
-	FILE *ofp;
-	char outputFilename[] = "part_b_output.txt";
-	ofp = fopen(outputFilename,"a");
+	// FILE *ofp;
+	// char outputFilename[] = "part_b_output.txt";
+	// ofp = fopen(outputFilename,"a");
 
 	int i;
 	for (i = 1; i<=5; i++){
+        FILE *ofp;
+        char outputFilename[] = "part_b_output.txt";
+        ofp = fopen(outputFilename,"a");
 		fprintf (ofp, "For the list of size 10^%d:\n",i);
+        fclose(ofp);
         printf("For the list of size 10^%d:\n",i);
 		//fprintf (ofp, "Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
 		int length = pow(10,i);
@@ -257,14 +261,16 @@ int main(int argc, char *argv[]){
         printf("Sum=%d\n", sum);
         printf("Time=%fsec\n\n",time_spent);
 
-		fprintf(ofp, "Max=%d\n", max);
-		fprintf(ofp, "Min=%d\n", min);	
-		fprintf(ofp, "Sum=%d\n", sum);
-		fprintf(ofp, "Time=%fsec\n\n",time_spent);
-
+        FILE *ofp2;
+        ofp2 = fopen(outputFilename,"a");
+		fprintf(ofp2, "Max=%d\n", max);
+		fprintf(ofp2, "Min=%d\n", min);	
+		fprintf(ofp2, "Sum=%d\n", sum);
+		fprintf(ofp2, "Time=%fsec\n\n",time_spent);
+        fclose(ofp2);
 		free (vals);
 	}
-	fclose(ofp);
+	//fclose(ofp);
 
     return 0;
 }
