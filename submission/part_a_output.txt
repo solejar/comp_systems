@@ -1,0 +1,35 @@
+Hi I'm process 11089 and my parent is 5169
+File of size 10^1 has:
+Max= 9923
+Min= 989
+Sum= 44544
+Time= 0.000002sec
+
+Hi I'm process 11089 and my parent is 5169
+File of size 10^2 has:
+Max= 9992
+Min= 158
+Sum= 517434
+Time= 0.000002sec
+
+Hi I'm process 11089 and my parent is 5169
+File of size 10^3 has:
+Max= 9994
+Min= 8
+Sum= 4975567
+Time= 0.000014sec
+
+Hi I'm process 11089 and my parent is 5169
+File of size 10^4 has:
+Max= 10000
+Min= 2
+Sum= 50031321
+Time= 0.000122sec
+
+Hi I'm process 11089 and my parent is 5169
+File of size 10^5 has:
+Max= 10000
+Min= 0
+Sum= 499425103
+Time= 0.000761sec
+

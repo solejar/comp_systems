@@ -76,8 +76,7 @@ int * collate(int * array1, int *array2){
 
 int * readFile(int file, int data_size){
 
-    //const char * file_pref = "./input/input_file_10^";
-    const char * file_pref = "data_";
+    const char * file_pref = "./input/input_file_10^";
     const char * file_suff = ".txt";
 
     char file_name[48];
@@ -181,7 +180,7 @@ int *iterative_spawn(int kids, int data_length, int * vals){
                 close(child_pipe[0]);
 
                 int * my_stats = stats(start,end,vals);
-                printf("my kiddy results are from %dstart %dend %d sum, %d min, %d max, %d\n",start,end,my_stats[0],my_stats[1],my_stats[2], (int) getpid());
+                printf("my kiddy results are %d sum, %d min, %d max\n",my_stats[0],my_stats[1],my_stats[2]);
                 write(ostream_child,my_stats,3*sizeof(int));
                 i++;
                 exit(1);

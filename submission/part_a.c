@@ -92,7 +92,8 @@ int * readFile(int file, int data_size){
 
 int main(int argc, char *argv[]){
 
-    const char * output_name = "./output/output_file_serial.txt";
+    //const char * output_name = "./output/output_file_serial.txt";
+    const char * output_name = "part_a_output.txt";
 
     FILE *output_file = NULL;
     output_file = fopen(output_name,"w");

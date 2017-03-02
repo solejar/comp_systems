@@ -118,7 +118,7 @@ int * readFile(int file, int data_size){
 
 int * spawn_children_BFS(int total_children, int num_elem /*number of elements in vals */, int *vals /*input data*/){
     FILE *output_file = NULL;
-    const char * output_name = "outputPartC.txt";
+    const char * output_name = "part_c_output.txt";
     output_file = fopen(output_name,"a");
     fprintf(output_file, "Hi, I'm parent %d.\n", (int)getpid());
     fclose(output_file);
@@ -179,7 +179,7 @@ int * spawn_children_BFS(int total_children, int num_elem /*number of elements i
 
 int main(int argc, char *argv[]){
 
-    const char * output_name = "outputPartC.txt";
+    const char * output_name = "part_c_output.txt";
 
     FILE *output_file = NULL;
     output_file = fopen(output_name,"w");

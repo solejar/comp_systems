@@ -74,55 +74,41 @@ int * collate(int * array1, int *array2){
     return output;
 }
 
-int * readFile(int file, int data_size){
+int *readFile(int size){
+	FILE *ifp;
 
-    const char * file_pref = "./input/input_file_10^";
-    const char * file_suff = ".txt";
+	char inputFilename[12];
+	sprintf(inputFilename, "data_%d.txt", size);
 
-    char file_name[48];
+	ifp = fopen(inputFilename, "r");
+	if (ifp == NULL) {
+		fprintf(stderr, "Can't open input file %s!\n", inputFilename);
+		exit(1);
+	}
 
-    char temp[2];
-    sprintf(temp,"%d",file);
+	int* arr;
+	int length = pow(10,size);
+	arr = malloc(length*sizeof(int));
 
-    //concat'ing file name
-    strcpy(file_name, file_pref);
-    strcat(file_name, temp);
-    strcat(file_name,file_suff);   
+	int i;
+	for (i = 0; i < length; i++){
+		fscanf(ifp, "%d", &arr[i]);
+	}
 
-    //dynamically allocating array
-    static int* output_vals;
-    output_vals = malloc(data_size*sizeof(int));
+	fclose(ifp);
 
-    //this is opening file
-    FILE *fp = NULL;
-    fp = fopen(file_name,"r");
+	return arr;
 
-    //checking fopen() success
-    if (fp == NULL){
-        printf("\nWarning, fopen() failed!\n");
-        int * error;
-        *error = -1;
-        return error;
-    }   
-
-    //reading in data 
-    for(int i =0;i<data_size;i++){
-        fscanf(fp,"%d", &output_vals[i]);
-    }
-
-    //printf("Success! read in okay\n");
-    fclose(fp);
-    return output_vals;
 }
 
-int * spawn_children(int kids_left, int max_size, int *vals){
+int * spawn_children(int kids_left, int max_size, int *vals, FILE* ofp){
     //printf("spawn func called with %dkids_left, %dmax_size\n",kids_left,max_size);
-    
-    int child_pipe[2];
+
+    int pipefds[2];
 
     //printf("my kids_left is %d, if it's <=0, I expect to hit edge!\n",kids_left);
 
-    if(pipe(child_pipe)){
+    if(pipe(pipefds)){
         perror("pipe");
         exit(1);
     }
@@ -146,17 +132,23 @@ int * spawn_children(int kids_left, int max_size, int *vals){
             exit(-1);
         }
         if(child_pid!=0){
-            printf("this is parent. id is %d\n",(int) getpid());
-            printf("child id = %d\n", (int) child_pid);
+         	FILE *ofp;
+			char outputFilename[] = "part_b_output.txt";
+			ofp = fopen(outputFilename,"a");
+
+   			printf ("Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+			fprintf (ofp, "Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+            fclose(ofp);
+			//fclose(ofp);
             int istream_parent;
-            istream_parent = child_pipe[0];
+            istream_parent = pipefds[0];
             
 
-            close(child_pipe[1]);
+            close(pipefds[1]);
             //close(parent_pipe[1]);
 
             //figure out how many elems this one will handle
-            int this_elems = (int) floor(max_size/(kids_left+1));
+            int this_elems = max_size/(kids_left+1);
 
             //how many left to pass 
             int elems_left = max_size - this_elems;
@@ -168,7 +160,6 @@ int * spawn_children(int kids_left, int max_size, int *vals){
             //int all_to_send[3];
             
 
-            int next_elems = (int) floor(elems_left/(kids_left));
             
             int child_stats[3];
 
@@ -181,27 +172,26 @@ int * spawn_children(int kids_left, int max_size, int *vals){
 
         }else{
             
-            printf("this is child. id is %d\n", (int) getpid());
+            //printf("this is child. id is %d\n", (int) getpid());
             int ostream_child;
-            ostream_child = child_pipe[1];
+            ostream_child = pipefds[1];
             
 
-            close(child_pipe[0]);
+            close(pipefds[0]);
             
 
             //floor might not be necessary
-            int this_elems = (int) floor(max_size/(kids_left+1));
+            int this_elems = max_size/(kids_left+1);
 
             //size of the subarray
             int elems_left = max_size-this_elems;
-            int next_elems = (int) floor(elems_left/(kids_left));
 
 
             //copies subarray to be passed to next function call
             int *next_vals = malloc(elems_left*sizeof(int));
             memcpy(next_vals, &vals[this_elems],elems_left*sizeof(int));
             
-            int *child_stats = spawn_children(kids_left-1,elems_left,next_vals);
+            int *child_stats = spawn_children(kids_left-1,elems_left,next_vals, ofp);
             
             write(ostream_child,child_stats,3*sizeof(int));
 
@@ -212,16 +202,22 @@ int * spawn_children(int kids_left, int max_size, int *vals){
 
         }
     }else{
-        
+        FILE *ofp;
+        char outputFilename[] = "part_b_output.txt";
+        ofp = fopen(outputFilename,"a");
+
+        printf ("Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+        fprintf (ofp, "Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+        fclose(ofp);
         int this_elems = max_size;
-        printf("vals are from %d, %d, to %d,\n",vals[0],vals[1],vals[2]);
+        //printf("vals are from %d, %d, to %d,\n",vals[0],vals[1],vals[2]);
         int *results = stats(0,this_elems,vals);
        
 
         int ostream_child;
-        ostream_child = child_pipe[1];
+        ostream_child = pipefds[1];
         
-        close(child_pipe[0]);
+        close(pipefds[0]);
 
         //printf("I'm mr edge case %d, and I'm returning sum: %d, min: %d, max: %d,\n",(int)getpid(),results[0],results[1],results[2]);
         //exit(1);
@@ -232,66 +228,43 @@ int * spawn_children(int kids_left, int max_size, int *vals){
 
 int main(int argc, char *argv[]){
 
-    const char * output_name = "./output/output_file_dfs.txt";
+	FILE *ofp;
+	char outputFilename[] = "part_b_output.txt";
+	ofp = fopen(outputFilename,"a");
 
-    FILE *output_file = NULL;
-    output_file = fopen(output_name,"w");
+	int i;
+	for (i = 1; i<=5; i++){
+		fprintf (ofp, "For the list of size 10^%d:\n",i);
+        printf("For the list of size 10^%d:\n",i);
+		//fprintf (ofp, "Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+		int length = pow(10,i);
+		int *vals = readFile(i);
 
-    //for(int file_size = 1; file_size<7;file_size++){
-    int file_size = 1; //this is for testing the simple code
-        
-
-        double ELEMS = pow(10,(double)file_size);
-        int data_length = (int) ELEMS;
-
-        int *vals = readFile(file_size,data_length);
         //now vals contains vals. everything after this can be split!
 
         //performing statistical operations on data
-
-        int *answer = spawn_children(3,data_length,vals);
-        printf("results of function call: %d sum, %d min, %d max", answer[0],answer[1],answer[2]);
-        /*
-        //let's learn about pids!
-        pid_t child_pid;
-
-        child_pid = fork();
-        if(child_pid != 0){
-            printf("this is parent, cause fork returned nonzero. id is %d\n",(int) getpid());
-            printf("child id = %d\n", (int) child_pid);
-        }
-        else{
-            printf("this is child, cause return is 0. id is %d\n", (int) getpid());
-        }*/
-
-        /*
         clock_t begin = clock();
-
-        //call function to get stats
-        int * stat_array = stats(0,data_length-1,vals);
-
-        int sum = stat_array[0];
-        int min = stat_array[1];
-        int max = stat_array[2];
-        printf("results of function call: %d sum, %d min, %d max", stat_array[0],stat_array[1],stat_array[2]);
-        
+        int *answer = spawn_children(3,length,vals,ofp);
         clock_t end = clock();
         double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;
 
+        int sum = answer[0];
+        int min = answer[1];
+		int max = answer[2];
 
-        //printf("fscanf() successful!\n");
+        printf("Max=%d\n", max);
+        printf("Min=%d\n", min);  
+        printf("Sum=%d\n", sum);
+        printf("Time=%fsec\n\n",time_spent);
 
-        
-        //printf("\n File stream closed through fclose()!\n");
+		fprintf(ofp, "Max=%d\n", max);
+		fprintf(ofp, "Min=%d\n", min);	
+		fprintf(ofp, "Sum=%d\n", sum);
+		fprintf(ofp, "Time=%fsec\n\n",time_spent);
 
-        char output[128];
+		free (vals);
+	}
+	fclose(ofp);
 
-        sprintf(output,"File of size 10^%d has:\nSum: %d,\n min: %d,\n max: %d,\n time: %fsec\n\n",file_size,sum, min,max, time_spent);
-        fputs(output,output_file);
-        */
-
-    //}
-
-    free (vals);
     return 0;
 }
