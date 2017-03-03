@@ -48,6 +48,7 @@ int* stats(int start, int end, int * array){
     return results;
 }
 
+//this file combines results of two arrays
 int * collate(int * array1, int *array2){
     int temp_sum = array1[0] + array2[0];
     int temp_min;
@@ -74,21 +75,14 @@ int * collate(int * array1, int *array2){
     return output;
 }
 
+//read in vals and put them in an array
 int * readFile(int file, int data_size){
 
-    //const char * file_pref = "./input/input_file_10^";
     const char * file_pref = "data_";
     const char * file_suff = ".txt";
 
-    char file_name[48];
-
-    char temp[2];
-    sprintf(temp,"%d",file);
-
-    //concat'ing file name
-    strcpy(file_name, file_pref);
-    strcat(file_name, temp);
-    strcat(file_name,file_suff);   
+    char inputFilename[24];
+    sprintf(inputFilename,"data_%d.txt",file);
 
     //dynamically allocating array
     static int* output_vals;
@@ -96,7 +90,7 @@ int * readFile(int file, int data_size){
 
     //this is opening file
     FILE *fp = NULL;
-    fp = fopen(file_name,"r");
+    fp = fopen(inputFilename,"r");
 
     //checking fopen() success
     if (fp == NULL){
@@ -111,18 +105,23 @@ int * readFile(int file, int data_size){
         fscanf(fp,"%d", &output_vals[i]);
     }
 
-    //printf("Success! read in okay\n");
     fclose(fp);
+
     return output_vals;
 }
 
+//spawn kids iteratively
 int *iterative_spawn(int kids, int data_length, int * vals){
-    int *master_stats; //[3];
+    FILE *output_file = NULL;
+    const char * output_name = "part_d_output.txt";
+
+    int *master_stats; 
     master_stats = malloc(3*sizeof(int));
 
     int *delete_me;
     delete_me = master_stats;
 
+    //dummy vals to start out
     master_stats[0] = 0;
     master_stats[1] = INT_MAX;
     master_stats[2] = INT_MIN;
@@ -131,14 +130,17 @@ int *iterative_spawn(int kids, int data_length, int * vals){
 
     pid = fork();
 
-    if(pid !=0){
+    if(pid !=0){//this is the parent
+
         int i = 0;
         int elems_left = data_length;
+        
         int start = 0;
         int end;
 
+        //while the parent still has kids to spawn
         while((i<kids)){
-            //int start;
+            
             int child_pipe[2];
 
             if(pipe(child_pipe)){
@@ -146,68 +148,83 @@ int *iterative_spawn(int kids, int data_length, int * vals){
                 exit(1);
             }
             
-            //this gon floor by itself
-            int this_elems = elems_left/(kids);
+            //find out how many to calculate
+            double temp_elems = floor(elems_left/(kids-i));
+            int this_elems = (int) temp_elems;
+
             end = start + this_elems;
 
-            int elems_left = elems_left - this_elems;
+            //figure out how many elems left to calc
+            int temp = elems_left - this_elems;
+            elems_left = temp;
+            
             pid = fork();
-            if(pid !=0){
-                printf("this is parent. id is %d, child is %d\n",(int) getpid(),(int) pid);
-                //int * parent_stats = stats()
+            if(pid !=0){//if it's the parent
+
+                //printf("this is parent, in the iterative func. id is %d, child is %d\n",(int) getpid(),(int) pid);
+                
                 int istream_parent;
                 istream_parent = child_pipe[0];
-
                 close(child_pipe[1]);
 
-                //int * child_stats = malloc(3*sizeof(int));
                 int child_stats[3];
 
-                
+                //get results from kid
                 read(istream_parent,child_stats,3*sizeof(int));
 
+                //collate answers
                 int *temp  = collate(master_stats,child_stats);
 
-                //free(child_stats);
                 master_stats = temp;
                 i++;
 
+            }else{//this is the kid
+
+                output_file = fopen(output_name,"a");
                 
-            }else{
-                printf("this is child. id is %d\n", (int) getpid());
+                fprintf(output_file, "Hi, I'm process %d and my parent is %d.\n", (int)getpid(), (int)getppid());
+                fclose(output_file);
+
+                //printf("this is child. id is %d\n", (int) getpid());
 
                 int ostream_child;
                 ostream_child = child_pipe[1];
                 close(child_pipe[0]);
 
+                //calc my vals
                 int * my_stats = stats(start,end,vals);
-                printf("my kiddy results are from %dstart %dend %d sum, %d min, %d max, %d\n",start,end,my_stats[0],my_stats[1],my_stats[2], (int) getpid());
+                
+                //write results to parent
                 write(ostream_child,my_stats,3*sizeof(int));
                 i++;
                 exit(1);
             }
             start = end;    
         }
+
     }else{
         exit(1);
     }
+
     free(delete_me);
     return master_stats;
     
 }
 
+//spawn kids recursively
 int * recursive_spawn(int kids_left, int max_kids, int max_size, int *vals){
-    //printf("spawn func called with %dkids_left, %dmax_size\n",kids_left,max_size);
+
+    FILE *output_file = NULL;
+    const char * output_name = "part_d_output.txt";
     
     int child_pipe[2];
-    //printf("my kids_left is %d, if it's <=0, I expect to hit edge!\n",kids_left);
 
     if(pipe(child_pipe)){
         perror("pipe");
         exit(1);
     }
 
-
+    //if still kids to be spawned
     if (kids_left>0){
 
         pid_t child_pid;
@@ -218,14 +235,16 @@ int * recursive_spawn(int kids_left, int max_kids, int max_size, int *vals){
             exit(-1);
         }
 
-        if(child_pid!=0){
-            printf("this is parent. id is %d\n",(int) getpid());
-            printf("child id = %d\n", (int) child_pid);
-            int istream_parent;
-            istream_parent = child_pipe[0];            
+        if(child_pid!=0){//this is the parent
+            output_file = fopen(output_name,"a");
+            fprintf(output_file, "Hi, I'm process %d and my parent is %d.\n", (int)getpid(), (int)getppid());
+            fclose(output_file);
 
-            close(child_pipe[1]);
-            //close(parent_pipe[1]);
+            //printf("this is parent, in the recursive func for my results. id is %d, child is %d\n",(int) getpid(), (int) child_pid);
+            
+            int istream_parent;
+            istream_parent = child_pipe[0];        
+            close(child_pipe[1]);            
 
             //figure out how many elems this one will handle
             int this_elems = (int) floor(max_size/(kids_left+1));
@@ -234,35 +253,45 @@ int * recursive_spawn(int kids_left, int max_kids, int max_size, int *vals){
             int elems_left = max_size - this_elems;
 
             int *new_elems = malloc(this_elems*sizeof(int));
+
             //get results for parent
             for(int i= 0;i<this_elems;i++){
                 new_elems[i] = vals[i];
             }
-            int * parent_stats = iterative_spawn(max_kids,max_size,new_elems);//stats(0, this_elems,vals);
-            free(new_elems);
+            int * test = stats(0,this_elems,vals);
             
+            int kids_to_spawn;
+
+            //edge case makes sure all kids have work to do
+            if(this_elems<max_kids){
+                kids_to_spawn = 1;
+            }else{
+                kids_to_spawn = max_kids+1;
+            }
+
+            //get my results, with my kids doing the work!
+            int * parent_stats = iterative_spawn(kids_to_spawn,this_elems,new_elems);
+            free(new_elems);
+
             //int all_to_send[3];   
             int next_elems = (int) floor(elems_left/(kids_left));            
-            int child_stats[3];
+            int child_stats[3];            
 
-            //int *second_child_stats = iterative_spawn(max_kids,max_size,vals);
-
-            //int *temp = collate(child_stats,second_child_stats);
-            
-
+            //read results from kid
             read(istream_parent,child_stats,3*sizeof(int));
             int * results = collate(parent_stats, child_stats);
 
             //printf("I'm parent %d, and I'm returning sum: %d, min: %d, max: %d,",(int)getpid(),results[0],results[1],results[2]);
             return results;
 
-        }else{            
-            printf("this is child. id is %d\n", (int) getpid());
+        }else{//this is the child
+                   
+            //printf("this is child. id is %d\n", (int) getpid());
             int ostream_child;
             ostream_child = child_pipe[1];      
             close(child_pipe[0]);            
 
-            //floor might not be necessary
+            //how many elems I am calculating?
             int this_elems = (int) floor(max_size/(kids_left+1));
 
             //size of the subarray
@@ -273,101 +302,104 @@ int * recursive_spawn(int kids_left, int max_kids, int max_size, int *vals){
             int *next_vals = malloc(elems_left*sizeof(int));
             memcpy(next_vals, &vals[this_elems],elems_left*sizeof(int));
             
+            //get results through recursive call
             int *child_stats = recursive_spawn(kids_left-1,max_kids,elems_left,next_vals);
             
+            //write results upstream
             write(ostream_child,child_stats,3*sizeof(int));
             
             free(next_vals);
             exit(1);
 
         }
-    }else{        
-        int this_elems = max_size;
-        printf("vals are from %d, %d, to %d,\n",vals[0],vals[1],vals[2]);
-        int *results = stats(0,this_elems,vals);       
+    }else{//this is the base case
 
+        output_file = fopen(output_name,"a");
+        fprintf(output_file, "Hi, I'm process %d and my parent is %d.\n", (int)getpid(), (int)getppid());
+        fclose(output_file); 
+
+        //figure out how many elems to operate on
+        int this_elems = max_size;
+        
+        int *test = stats(0,this_elems,vals);
+
+        int kids_to_spawn;
+
+        //make this edge case so processes have at least one piece of data
+        if(this_elems<max_kids){
+            kids_to_spawn = 1;
+        }else{
+            kids_to_spawn = max_kids+1;
+        }
+
+        //get my results, by having my kids the work for me!
+        int * parent_stats = iterative_spawn(kids_to_spawn,this_elems,vals);       
+
+        //printf("this is parent edge case recursive, id is %d\n",(int)getpid());
+
+        //write results upstream to parent
         int ostream_child;
         ostream_child = child_pipe[1];        
         close(child_pipe[0]);
 
-        //printf("I'm mr edge case %d, and I'm returning sum: %d, min: %d, max: %d,\n",(int)getpid(),results[0],results[1],results[2]);
-        //exit(1);
-        return results;
+        return parent_stats;
     }
     
 }
 
 
-
 int main(int argc, char *argv[]){
 
-    const char * output_name = "./output/output_file_dfs.txt";
+    const char * output_name = "part_d_output.txt";
 
     FILE *output_file = NULL;
     output_file = fopen(output_name,"w");
+    fclose(output_file);
 
-    //for(int file_size = 1; file_size<7;file_size++){
-    int file_size = 1; //this is for testing the simple code
-        
+    //open up files
+    int kids = 3;
+    for (int file_size = 1; file_size<=5; file_size++){
 
-        double ELEMS = pow(10,(double)file_size);
-        int data_length = (int) ELEMS;
+        FILE *ofp;
+        char outputFilename[] = "part_d_output.txt";
+        ofp = fopen(outputFilename,"a");
+
+        fprintf (ofp, "For the list of size 10^%d:\n",file_size);
+        fclose(ofp);
+        //printf("For the list of size 10^%d:\n",file_size);
+
+        int data_length = pow(10,file_size);
 
         int *vals = readFile(file_size,data_length);
         //now vals contains vals. everything after this can be split!
 
         //performing statistical operations on data
-        int kids = 3;
-
-        int *master_stats = recursive_spawn(kids,kids,data_length,vals);
-
-        printf("results of function call: %d sum, %d min, %d max\n", master_stats[0],master_stats[1],master_stats[2]);
-        //printf("this is definitely where the error is");
-        
-        //int *answer = (3,data_length,vals);
-        //printf("results of function call: %d sum, %d min, %d max", answer[0],answer[1],answer[2]);
-
-        /*
-        //let's learn about pids!
-        pid_t child_pid;
-
-        child_pid = fork();
-        if(child_pid != 0){
-            printf("this is parent, cause fork returned nonzero. id is %d\n",(int) getpid());
-            printf("child id = %d\n", (int) child_pid);
-        }
-        else{
-            printf("this is child, cause return is 0. id is %d\n", (int) getpid());
-        }*/
-
-        /*
         clock_t begin = clock();
-
-        //call function to get stats
-        int * stat_array = stats(0,data_length-1,vals);
-
-        int sum = stat_array[0];
-        int min = stat_array[1];
-        int max = stat_array[2];
-        printf("results of function call: %d sum, %d min, %d max", stat_array[0],stat_array[1],stat_array[2]);
-        
+        int *answer = recursive_spawn(kids,kids,data_length,vals);
         clock_t end = clock();
+
+        //get timings
         double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;
 
+        int sum = answer[0];
+        int min = answer[1];
+        int max = answer[2];
 
-        //printf("fscanf() successful!\n");
+        /*
+        printf("Max=%d\n", max);
+        printf("Min=%d\n", min);  
+        printf("Sum=%d\n", sum);
+        printf("Time=%fsec\n\n",time_spent);*/
 
+        //print answers
+        ofp = fopen(outputFilename,"a");
+        fprintf(ofp, "Max=%d\n", max);
+        fprintf(ofp, "Min=%d\n", min); 
+        fprintf(ofp, "Sum=%d\n", sum);
+        fprintf(ofp, "Time=%fsec\n\n",time_spent);
+        fclose(ofp);
+        free (vals);
+    }
         
-        //printf("\n File stream closed through fclose()!\n");
-
-        char output[128];
-
-        sprintf(output,"File of size 10^%d has:\nSum: %d,\n min: %d,\n max: %d,\n time: %fsec\n\n",file_size,sum, min,max, time_spent);
-        fputs(output,output_file);
-        */
-
-    //}
-
-    free (vals);
     return 0;
 }

@@ -48,6 +48,7 @@ int* stats(int start, int end, int * array){
     return results;
 }
 
+//combines results of two arrays
 int * collate(int * array1, int *array2){
     int temp_sum = array1[0] + array2[0];
     int temp_min;
@@ -74,20 +75,14 @@ int * collate(int * array1, int *array2){
     return output;
 }
 
+//reads in file and puts it in array
 int * readFile(int file, int data_size){
 
     const char * file_pref = "data_";
     const char * file_suff = ".txt";
 
-    char file_name[48];
-
-    char temp[2];
-    sprintf(temp,"%d",file);
-
-    //concat'ing file name
-    strcpy(file_name, file_pref);
-    strcat(file_name, temp);
-    strcat(file_name,file_suff);   
+    char inputFilename[24];
+    sprintf(inputFilename,"data_%d.txt",file);
 
     //dynamically allocating array
     static int* output_vals;
@@ -95,7 +90,7 @@ int * readFile(int file, int data_size){
 
     //this is opening file
     FILE *fp = NULL;
-    fp = fopen(file_name,"r");
+    fp = fopen(inputFilename,"r");
 
     //checking fopen() success
     if (fp == NULL){
@@ -110,13 +105,14 @@ int * readFile(int file, int data_size){
         fscanf(fp,"%d", &output_vals[i]);
     }
 
-    //printf("Success! read in okay\n");
     fclose(fp);
 
     return output_vals;
 }
 
+//spawn the children iteratively
 int * spawn_children_BFS(int total_children, int num_elem /*number of elements in vals */, int *vals /*input data*/){
+
     FILE *output_file = NULL;
     const char * output_name = "part_c_output.txt";
     output_file = fopen(output_name,"a");
@@ -126,13 +122,18 @@ int * spawn_children_BFS(int total_children, int num_elem /*number of elements i
     int *result[3];
     int kids_left = total_children;
     int numPerProc = num_elem/total_children;
+
     int *master_stats = malloc(3*sizeof(int));
     int *deleteMe = master_stats;
+
+    //dummy placeholder
     master_stats[0] = 0;
     master_stats[1] = INT_MAX;
     master_stats[2] = INT_MIN;
 
+    //collect results from all the kids
     for(int i = 0; i < total_children; i++){
+
         int pipefd[2];
         int child_stats[3];
 
@@ -144,17 +145,23 @@ int * spawn_children_BFS(int total_children, int num_elem /*number of elements i
         pid_t pid = fork(); //create children
 
         if(pid > 0){ //its a parent
+
             close(pipefd[1]);
+            //get results from kid
             read(pipefd[0],child_stats,3*sizeof(int));
 
+            //combine running stats
             master_stats = collate(master_stats, child_stats);
-            //if its the parents process, create another child
+            
         } 
-        else if (pid == 0){ //otherise its a kid
+        else if (pid == 0){ //otherwise its a kid
+
             if (i == (total_children - 1)){ //if its the last child
                 output_file = fopen(output_name,"a");
                 fprintf(output_file, "Hi, I'm process %d and my parent is %d.\n", (int)getpid(), (int)getppid());
                 fclose(output_file);
+
+                //write results upstream to parent
                 close(pipefd[0]);
                 write(pipefd[1], stats((i*numPerProc), num_elem-1, vals), (3*sizeof(int)));
                 exit(0);
@@ -163,6 +170,8 @@ int * spawn_children_BFS(int total_children, int num_elem /*number of elements i
                 output_file = fopen(output_name,"a");
                 fprintf(output_file, "Hi, I'm process %d and my parent is %d.\n", (int)getpid(), (int)getppid());
                 fclose(output_file);
+
+                //write results upstream to parent
                 close(pipefd[0]);
                 write(pipefd[1], stats((i*numPerProc), (i*numPerProc)+numPerProc-1, vals), (3*sizeof(int)));
                 exit(0); 
@@ -173,8 +182,9 @@ int * spawn_children_BFS(int total_children, int num_elem /*number of elements i
             exit(-1);
         }
     }
-    return master_stats;
     free(deleteMe);
+    return master_stats;
+    
 }
 
 int main(int argc, char *argv[]){
@@ -185,10 +195,14 @@ int main(int argc, char *argv[]){
     output_file = fopen(output_name,"w");
     fclose(output_file);
 
+    //open up all files
+    int kids = 3;
     for(int file_size = 1; file_size<=5;file_size++){
+
         output_file = fopen(output_name, "a");
     	fprintf (output_file, "For the list of size 10^%d:\n",file_size);
         fclose(output_file);
+
        	double ELEMS = pow(10,(double)file_size);
        	int data_length = (int) ELEMS;
 
@@ -197,13 +211,17 @@ int main(int argc, char *argv[]){
 
         //performing statistical operations on data
         clock_t begin = clock();
-        int *answer = spawn_children_BFS(5,data_length,vals);
+        int *answer = spawn_children_BFS(kids,data_length,vals);
         clock_t end = clock();
+
         double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;
+
         output_file = fopen(output_name, "a");
         fprintf(output_file, "Max = %d\nMin = %d\nSum = %d\nTime= %fsec\n\n", answer[2],answer[1],answer[0],time_spent);
         fclose(output_file);
+
         free (vals);
     }
+
     return 0;
 }

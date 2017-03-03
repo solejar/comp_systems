@@ -1,0 +1,50 @@
+For the list of size 10^1:
+Hi, I'm parent 15998.
+Hi, I'm process 15999 and my parent is 15998.
+Hi, I'm process 16000 and my parent is 15998.
+Hi, I'm process 16001 and my parent is 15998.
+Max = 9923
+Min = 989
+Sum = 44544
+Time= 0.000210sec
+
+For the list of size 10^2:
+Hi, I'm parent 15998.
+Hi, I'm process 16002 and my parent is 15998.
+Hi, I'm process 16003 and my parent is 15998.
+Hi, I'm process 16004 and my parent is 15998.
+Max = 9992
+Min = 158
+Sum = 517434
+Time= 0.000194sec
+
+For the list of size 10^3:
+Hi, I'm parent 15998.
+Hi, I'm process 16005 and my parent is 15998.
+Hi, I'm process 16006 and my parent is 15998.
+Hi, I'm process 16007 and my parent is 15998.
+Max = 9994
+Min = 8
+Sum = 4975567
+Time= 0.000219sec
+
+For the list of size 10^4:
+Hi, I'm parent 15998.
+Hi, I'm process 16008 and my parent is 15998.
+Hi, I'm process 16009 and my parent is 15998.
+Hi, I'm process 16010 and my parent is 15998.
+Max = 10000
+Min = 2
+Sum = 50031321
+Time= 0.000217sec
+
+For the list of size 10^5:
+Hi, I'm parent 15998.
+Hi, I'm process 16011 and my parent is 15998.
+Hi, I'm process 16012 and my parent is 15998.
+Hi, I'm process 16013 and my parent is 15998.
+Max = 10000
+Min = 0
+Sum = 499425103
+Time= 0.000263sec
+

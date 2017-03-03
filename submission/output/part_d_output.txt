@@ -1,0 +1,124 @@
+For the list of size 10^1:
+Hi, I'm process 16014 and my parent is 5169.
+Hi, I'm process 16015 and my parent is 16014.
+Hi, I'm process 16017 and my parent is 16015.
+Hi, I'm process 16018 and my parent is 16014.
+Hi, I'm process 16020 and my parent is 16017.
+Hi, I'm process 16023 and my parent is 16017.
+Hi, I'm process 16021 and my parent is 16015.
+Hi, I'm process 16026 and my parent is 16020.
+Hi, I'm process 16025 and my parent is 16017.
+Hi, I'm process 16027 and my parent is 16020.
+Hi, I'm process 16028 and my parent is 16017.
+Hi, I'm process 16029 and my parent is 16020.
+Hi, I'm process 16030 and my parent is 16017.
+Hi, I'm process 16031 and my parent is 16020.
+Max=9923
+Min=989
+Sum=44544
+Time=0.000252sec
+
+For the list of size 10^2:
+Hi, I'm process 16014 and my parent is 5169.
+Hi, I'm process 16032 and my parent is 16014.
+Hi, I'm process 16035 and my parent is 16014.
+Hi, I'm process 16034 and my parent is 16032.
+Hi, I'm process 16038 and my parent is 16034.
+Hi, I'm process 16039 and my parent is 16014.
+Hi, I'm process 16042 and my parent is 16034.
+Hi, I'm process 16037 and my parent is 16032.
+Hi, I'm process 16043 and my parent is 16038.
+Hi, I'm process 16046 and my parent is 16032.
+Hi, I'm process 16047 and my parent is 16038.
+Hi, I'm process 16044 and my parent is 16014.
+Hi, I'm process 16049 and my parent is 16038.
+Hi, I'm process 16045 and my parent is 16034.
+Hi, I'm process 16050 and my parent is 16014.
+Hi, I'm process 16048 and my parent is 16032.
+Hi, I'm process 16053 and my parent is 16032.
+Hi, I'm process 16052 and my parent is 16034.
+Hi, I'm process 16054 and my parent is 16034.
+Hi, I'm process 16051 and my parent is 16038.
+Max=9992
+Min=158
+Sum=517434
+Time=0.000381sec
+
+For the list of size 10^3:
+Hi, I'm process 16014 and my parent is 5169.
+Hi, I'm process 16055 and my parent is 16014.
+Hi, I'm process 16057 and my parent is 16055.
+Hi, I'm process 16058 and my parent is 16014.
+Hi, I'm process 16064 and my parent is 16014.
+Hi, I'm process 16059 and my parent is 16057.
+Hi, I'm process 16065 and my parent is 16014.
+Hi, I'm process 16062 and my parent is 16055.
+Hi, I'm process 16068 and my parent is 16014.
+Hi, I'm process 16067 and my parent is 16059.
+Hi, I'm process 16063 and my parent is 16057.
+Hi, I'm process 16069 and my parent is 16055.
+Hi, I'm process 16071 and my parent is 16057.
+Hi, I'm process 16072 and my parent is 16055.
+Hi, I'm process 16074 and my parent is 16055.
+Hi, I'm process 16070 and my parent is 16059.
+Hi, I'm process 16075 and my parent is 16059.
+Hi, I'm process 16073 and my parent is 16057.
+Hi, I'm process 16076 and my parent is 16059.
+Hi, I'm process 16077 and my parent is 16057.
+Max=9994
+Min=8
+Sum=4975567
+Time=0.000365sec
+
+For the list of size 10^4:
+Hi, I'm process 16014 and my parent is 5169.
+Hi, I'm process 16078 and my parent is 16014.
+Hi, I'm process 16081 and my parent is 16078.
+Hi, I'm process 16082 and my parent is 16081.
+Hi, I'm process 16088 and my parent is 16082.
+Hi, I'm process 16084 and my parent is 16078.
+Hi, I'm process 16080 and my parent is 16014.
+Hi, I'm process 16090 and my parent is 16078.
+Hi, I'm process 16089 and my parent is 16082.
+Hi, I'm process 16092 and my parent is 16078.
+Hi, I'm process 16086 and my parent is 16081.
+Hi, I'm process 16094 and my parent is 16078.
+Hi, I'm process 16095 and my parent is 16081.
+Hi, I'm process 16096 and my parent is 16081.
+Hi, I'm process 16091 and my parent is 16014.
+Hi, I'm process 16093 and my parent is 16082.
+Hi, I'm process 16098 and my parent is 16082.
+Hi, I'm process 16097 and my parent is 16081.
+Hi, I'm process 16099 and my parent is 16014.
+Hi, I'm process 16100 and my parent is 16014.
+Max=10000
+Min=2
+Sum=50031321
+Time=0.000481sec
+
+For the list of size 10^5:
+Hi, I'm process 16014 and my parent is 5169.
+Hi, I'm process 16101 and my parent is 16014.
+Hi, I'm process 16102 and my parent is 16101.
+Hi, I'm process 16104 and my parent is 16102.
+Hi, I'm process 16107 and my parent is 16101.
+Hi, I'm process 16105 and my parent is 16014.
+Hi, I'm process 16110 and my parent is 16104.
+Hi, I'm process 16108 and my parent is 16101.
+Hi, I'm process 16111 and my parent is 16014.
+Hi, I'm process 16113 and my parent is 16101.
+Hi, I'm process 16114 and my parent is 16014.
+Hi, I'm process 16112 and my parent is 16104.
+Hi, I'm process 16116 and my parent is 16102.
+Hi, I'm process 16120 and my parent is 16102.
+Hi, I'm process 16118 and my parent is 16014.
+Hi, I'm process 16117 and my parent is 16101.
+Hi, I'm process 16121 and my parent is 16102.
+Hi, I'm process 16119 and my parent is 16104.
+Hi, I'm process 16122 and my parent is 16102.
+Hi, I'm process 16123 and my parent is 16104.
+Max=10000
+Min=0
+Sum=499425103
+Time=0.000806sec
+

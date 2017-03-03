@@ -48,6 +48,7 @@ int* stats(int start, int end, int * array){
     return results;
 }
 
+//this function combines the results of two arrays
 int * collate(int * array1, int *array2){
     int temp_sum = array1[0] + array2[0];
     int temp_min;
@@ -74,6 +75,7 @@ int * collate(int * array1, int *array2){
     return output;
 }
 
+//this function reads in vals
 int *readFile(int size){
 	FILE *ifp;
 
@@ -101,28 +103,18 @@ int *readFile(int size){
 
 }
 
+//this function recursively forks and splits work between children.
 int * spawn_children(int kids_left, int max_size, int *vals, FILE* ofp){
-    //printf("spawn func called with %dkids_left, %dmax_size\n",kids_left,max_size);
 
     int pipefds[2];
-
-    //printf("my kids_left is %d, if it's <=0, I expect to hit edge!\n",kids_left);
 
     if(pipe(pipefds)){
         perror("pipe");
         exit(1);
     }
 
-
+    //while there are still children left to spawn
     if (kids_left>0){
-
-        //int parent_pipe[2];
-        //int child_pipe[2];
-        /*
-        if(pipe(child_pipe)){
-            perror("pipe");
-            exit(1);
-        }*/
 
         pid_t child_pid;
 
@@ -131,56 +123,49 @@ int * spawn_children(int kids_left, int max_size, int *vals, FILE* ofp){
             perror("fork()");
             exit(-1);
         }
-        if(child_pid!=0){
+
+        if(child_pid!=0){ //this is the parent
+
          	FILE *ofp;
 			char outputFilename[] = "part_b_output.txt";
 			ofp = fopen(outputFilename,"a");
 
-   			printf ("Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+   			//printf ("Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
 			fprintf (ofp, "Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
             fclose(ofp);
-			//fclose(ofp);
+			
             int istream_parent;
-            istream_parent = pipefds[0];
-            
+            istream_parent = pipefds[0];            
 
             close(pipefds[1]);
-            //close(parent_pipe[1]);
 
             //figure out how many elems this one will handle
             int this_elems = max_size/(kids_left+1);
 
-            //how many left to pass 
+            //how many left to pass to the kids
             int elems_left = max_size - this_elems;
 
-            //get results for parent
+            //get own results
             int * parent_stats = stats(0, this_elems,vals);
-
-            
-            //int all_to_send[3];
-            
-
             
             int child_stats[3];
 
+            //read in results from the kid
             read(istream_parent,child_stats,3*sizeof(int));
 
             int * results = collate(parent_stats, child_stats);
 
-            //printf("I'm parent %d, and I'm returning sum: %d, min: %d, max: %d,",(int)getpid(),results[0],results[1],results[2]);
             return results;
 
-        }else{
+        }else{//this is the child
             
             //printf("this is child. id is %d\n", (int) getpid());
             int ostream_child;
             ostream_child = pipefds[1];
-            
 
             close(pipefds[0]);
             
-
-            //floor might not be necessary
+            //this is how many elems this kid has to handle
             int this_elems = max_size/(kids_left+1);
 
             //size of the subarray
@@ -191,36 +176,31 @@ int * spawn_children(int kids_left, int max_size, int *vals, FILE* ofp){
             int *next_vals = malloc(elems_left*sizeof(int));
             memcpy(next_vals, &vals[this_elems],elems_left*sizeof(int));
             
+            //get results from recursive function call
             int *child_stats = spawn_children(kids_left-1,elems_left,next_vals, ofp);
             
+            //give those results back to the parent
             write(ostream_child,child_stats,3*sizeof(int));
 
-            
             free(next_vals);
 
             exit(1);
 
         }
-    }else{
+    }else{//this is the base case
+
         FILE *ofp;
         char outputFilename[] = "part_b_output.txt";
         ofp = fopen(outputFilename,"a");
 
-        printf ("Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+        //printf ("Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
         fprintf (ofp, "Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
         fclose(ofp);
+
+        //return results of subarray
         int this_elems = max_size;
-        //printf("vals are from %d, %d, to %d,\n",vals[0],vals[1],vals[2]);
         int *results = stats(0,this_elems,vals);
-       
 
-        int ostream_child;
-        ostream_child = pipefds[1];
-        
-        close(pipefds[0]);
-
-        //printf("I'm mr edge case %d, and I'm returning sum: %d, min: %d, max: %d,\n",(int)getpid(),results[0],results[1],results[2]);
-        //exit(1);
         return results;
     }
     
@@ -228,49 +208,56 @@ int * spawn_children(int kids_left, int max_size, int *vals, FILE* ofp){
 
 int main(int argc, char *argv[]){
 
-	// FILE *ofp;
-	// char outputFilename[] = "part_b_output.txt";
-	// ofp = fopen(outputFilename,"a");
+	const char * output_name = "part_b_output.txt";
 
+    FILE *output_file = NULL;
+    output_file = fopen(output_name,"w");
+    fclose(output_file);
+
+    //open up all the files
 	int i;
+    int kids = 3;
 	for (i = 1; i<=5; i++){
         FILE *ofp;
         char outputFilename[] = "part_b_output.txt";
+
         ofp = fopen(outputFilename,"a");
 		fprintf (ofp, "For the list of size 10^%d:\n",i);
         fclose(ofp);
-        printf("For the list of size 10^%d:\n",i);
-		//fprintf (ofp, "Hi I'm process %d and my parent is %d.\n", (int) getpid(), (int) getppid());
+
+        //printf("For the list of size 10^%d:\n",i);
+		
 		int length = pow(10,i);
 		int *vals = readFile(i);
 
-        //now vals contains vals. everything after this can be split!
+        //now vals contains data. everything after this can be split!
 
         //performing statistical operations on data
         clock_t begin = clock();
-        int *answer = spawn_children(3,length,vals,ofp);
+        int *answer = spawn_children(kids,length,vals,ofp);
         clock_t end = clock();
+
+        //get timings
         double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;
 
+        //print answers
         int sum = answer[0];
         int min = answer[1];
 		int max = answer[2];
 
-        printf("Max=%d\n", max);
+        /*printf("Max=%d\n", max);
         printf("Min=%d\n", min);  
         printf("Sum=%d\n", sum);
-        printf("Time=%fsec\n\n",time_spent);
+        printf("Time=%fsec\n\n",time_spent);*/
 
-        FILE *ofp2;
-        ofp2 = fopen(outputFilename,"a");
-		fprintf(ofp2, "Max=%d\n", max);
-		fprintf(ofp2, "Min=%d\n", min);	
-		fprintf(ofp2, "Sum=%d\n", sum);
-		fprintf(ofp2, "Time=%fsec\n\n",time_spent);
-        fclose(ofp2);
+        ofp = fopen(outputFilename,"a");
+		fprintf(ofp, "Max=%d\n", max);
+		fprintf(ofp, "Min=%d\n", min);	
+		fprintf(ofp, "Sum=%d\n", sum);
+		fprintf(ofp, "Time=%fsec\n\n",time_spent);
+        fclose(ofp);
 		free (vals);
 	}
-	//fclose(ofp);
 
     return 0;
 }

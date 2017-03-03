@@ -1,0 +1,50 @@
+For the list of size 10^1:
+Hi I'm process 15982 and my parent is 5169.
+Hi I'm process 15983 and my parent is 15982.
+Hi I'm process 15984 and my parent is 15983.
+Hi I'm process 15985 and my parent is 15984.
+Max=9923
+Min=989
+Sum=44544
+Time=0.000103sec
+
+For the list of size 10^2:
+Hi I'm process 15982 and my parent is 5169.
+Hi I'm process 15986 and my parent is 15982.
+Hi I'm process 15988 and my parent is 15987.
+Hi I'm process 15987 and my parent is 15986.
+Max=9992
+Min=158
+Sum=517434
+Time=0.000095sec
+
+For the list of size 10^3:
+Hi I'm process 15982 and my parent is 5169.
+Hi I'm process 15989 and my parent is 15982.
+Hi I'm process 15990 and my parent is 15989.
+Hi I'm process 15991 and my parent is 15990.
+Max=9994
+Min=8
+Sum=4975567
+Time=0.000092sec
+
+For the list of size 10^4:
+Hi I'm process 15982 and my parent is 5169.
+Hi I'm process 15992 and my parent is 15982.
+Hi I'm process 15993 and my parent is 15992.
+Hi I'm process 15994 and my parent is 15993.
+Max=10000
+Min=2
+Sum=50031321
+Time=0.000098sec
+
+For the list of size 10^5:
+Hi I'm process 15982 and my parent is 5169.
+Hi I'm process 15995 and my parent is 15982.
+Hi I'm process 15996 and my parent is 15995.
+Hi I'm process 15997 and my parent is 15996.
+Max=10000
+Min=0
+Sum=499425103
+Time=0.000260sec
+

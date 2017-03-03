@@ -44,23 +44,14 @@ int* stats(int start, int end, int * array){
     return results;
 }
 
+//function that reads in file and puts it in an array
 int * readFile(int file, int data_size){
 
-    //const char * file_pref = "./input/input_file_10^";
-    
     const char * file_pref = "data_";
     const char * file_suff = ".txt";
 
     char inputFilename[24];
     sprintf(inputFilename,"data_%d.txt",file);
-
-    char temp[2];
-    sprintf(temp,"%d",file);
-
-    //concat'ing file name
-    //strcpy(file_name, file_pref);
-    //strcat(file_name, temp);
-    //strcat(file_name,file_suff);   
 
     //dynamically allocating array
     static int* output_vals;
@@ -83,8 +74,6 @@ int * readFile(int file, int data_size){
         fscanf(fp,"%d", &output_vals[i]);
     }
 
-    //printf("Success! read in okay\n");
-
     fclose(fp);
 
     return output_vals;
@@ -92,15 +81,13 @@ int * readFile(int file, int data_size){
 
 int main(int argc, char *argv[]){
 
-    //const char * output_name = "./output/output_file_serial.txt";
     const char * output_name = "part_a_output.txt";
 
     FILE *output_file = NULL;
     output_file = fopen(output_name,"w");
 
-    for(int file_size = 1; file_size<6;file_size++){
-   
-        //int file_size = 1; //this is for testing the simple code        
+    //read in for each file
+    for(int file_size = 1; file_size<6;file_size++){       
 
         double ELEMS = pow(10,(double)file_size);
         int data_length = (int) ELEMS;
@@ -120,14 +107,10 @@ int main(int argc, char *argv[]){
         int max = stat_array[2];
         //printf("results of function call: %d sum, %d sum, %d sum", stat_array[0],stat_array[1],stat_array[2]);
 
+        //get timings
         clock_t end = clock();
         double time_spent = (double)(end-begin)/CLOCKS_PER_SEC;
         
-
-        //printf("fscanf() successful!\n");
-
-        
-        //printf("\n File stream closed through fclose()!\n");
 
         char output[128];
         sprintf(output,"Hi I'm process %d and my parent is %d\n",getpid(),getppid());
