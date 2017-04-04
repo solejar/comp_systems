@@ -5,6 +5,8 @@
 #include <semaphore.h>	// for semaphores
 #include <unistd.h>		// for sleep function
 
+//gcc -std=c99 hw2q4.c -pthread
+
 // need a semaphore for number of children
 // semaphore for number of teachers
 
