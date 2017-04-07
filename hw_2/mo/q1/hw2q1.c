@@ -4,6 +4,8 @@
 #include <pthread.h>	// for threads
 #include <stdlib.h>		// for atoi() function
 
+// to compile: gcc -std=c99 hw2q1.c -pthread -lm
+
 struct arg_struct {
 	int arg1;		// integer n
 	bool* arg2;		// boolean array of primes

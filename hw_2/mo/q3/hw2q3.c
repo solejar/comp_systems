@@ -5,6 +5,9 @@
 #include <semaphore.h>	// for semaphores
 #include <unistd.h>		// for sleep function
 
+// to compile: gcc -std=c99 hw2q3.c -pthread
+// to run: ./a.out <int for number of seats> <int for number of customers>
+
 sem_t K;		// global semaphore variable for seats available -- counting semaphore
 sem_t csdesk;	// global semaphore variable for customer service desk -- binary semaphore
 char* bank_name = "Bank of America";		// assignment requests a shared variable, so all my customers will share the bank name
